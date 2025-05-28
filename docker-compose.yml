@@ -16,7 +16,7 @@ services:
       # HTTP Entrypoints
       - --entrypoints.web.address=:80
       # TCP Entrypoints
-      - --entrypoints.tcp.address=:5555
+      - --entrypoints.sdr.address=:5555
     networks:
       - sdrhub
     ports:
@@ -131,5 +131,5 @@ services:
       - traefik.enable=true
       - traefik.tcp.services.sdrhub-airspy-svc.loadbalancer.server.port=5555
       - traefik.tcp.routers.sdrhub-airspy.service=sdrhub-airspy
-      - traefik.tcp.routers.sdrhub-airspy.entrypoints=tcp
+      - traefik.tcp.routers.sdrhub-airspy.entrypoints=sdr
       - traefik.tcp.routers.sdrhub-airspy.rule=HostSNI(`airspy.sdrhub.localhost`)
