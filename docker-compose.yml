@@ -91,10 +91,10 @@ services:
     restart: unless-stopped
     networks:
       - sdrhub
-    command:
-      - serve
     volumes:
       - ./docker/ntfy/data:/var/lib/ntfy
+    command:
+      - serve
     environment:
       - NTFY_ENABLE_LOGIN=true
       - NTFY_BEHIND_PROXY=true
