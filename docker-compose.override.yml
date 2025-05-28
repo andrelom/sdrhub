@@ -14,7 +14,8 @@ services:
     restart: unless-stopped
     networks:
       - cloudflaretunnel
-    command: tunnel run --url http://sdrhub-traefik
+    command:
+      - tunnel run --url http://sdrhub-traefik
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
   #
