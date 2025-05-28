@@ -33,10 +33,10 @@ services:
       - cloudflaretunnel
     labels:
       - traefik.enable=true
-      - traefik.http.services.sdrhub-homepage.loadbalancer.server.port=3000
-      - traefik.http.routers.sdrhub-homepage.service=sdrhub-homepage
       - traefik.http.routers.sdrhub-homepage.entrypoints=web
+      - traefik.http.routers.sdrhub-homepage.service=sdrhub-homepage
       - traefik.http.routers.sdrhub-homepage.rule=Host(`sdrhub.xyz`)
+      - traefik.http.services.sdrhub-homepage.loadbalancer.server.port=3000
   #
   # Glances
   # --------------------------------------------------
@@ -47,10 +47,10 @@ services:
     labels:
       - traefik.enable=true
       # Default
-      - traefik.http.services.sdrhub-glances.loadbalancer.server.port=61208
-      - traefik.http.routers.sdrhub-glances.service=sdrhub-glances
       - traefik.http.routers.sdrhub-glances.entrypoints=web
+      - traefik.http.routers.sdrhub-glances.service=sdrhub-glances
       - traefik.http.routers.sdrhub-glances.rule=Host(`glances.sdrhub.xyz`)
+      - traefik.http.services.sdrhub-glances.loadbalancer.server.port=61208
   #
   # Dozzle
   # --------------------------------------------------
@@ -61,10 +61,10 @@ services:
     labels:
       - traefik.enable=true
       # Default
-      - traefik.http.services.sdrhub-dozzle.loadbalancer.server.port=8080
-      - traefik.http.routers.sdrhub-dozzle.service=sdrhub-dozzle
       - traefik.http.routers.sdrhub-dozzle.entrypoints=web
+      - traefik.http.routers.sdrhub-dozzle.service=sdrhub-dozzle
       - traefik.http.routers.sdrhub-dozzle.rule=Host(`dozzle.sdrhub.xyz`)
+      - traefik.http.services.sdrhub-dozzle.loadbalancer.server.port=8080
   #
   # Ntfy
   # --------------------------------------------------
@@ -74,17 +74,7 @@ services:
       - cloudflaretunnel
     labels:
       - traefik.enable=true
-      - traefik.http.services.sdrhub-ntfy.loadbalancer.server.port=80
-      - traefik.http.routers.sdrhub-ntfy.service=sdrhub-ntfy
       - traefik.http.routers.sdrhub-ntfy.entrypoints=web
+      - traefik.http.routers.sdrhub-ntfy.service=sdrhub-ntfy
       - traefik.http.routers.sdrhub-ntfy.rule=Host(`ntfy.sdrhub.xyz`)
-  #
-  # AirSpy Server
-  # --------------------------------------------------
-  sdrhub-airspy:
-    labels:
-      - traefik.enable=true
-      - traefik.tcp.services.sdrhub-airspy-svc.loadbalancer.server.port=5555
-      - traefik.tcp.routers.sdrhub-airspy.service=sdrhub-airspy
-      - traefik.tcp.routers.sdrhub-airspy.entrypoints=sdr
-      - traefik.tcp.routers.sdrhub-airspy.rule=HostSNI(`airspy.sdrhub.xyz`)
+      - traefik.http.services.sdrhub-ntfy.loadbalancer.server.port=80
