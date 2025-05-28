@@ -53,12 +53,12 @@ def send_ntfy_notification(message: str, priority: str) -> None:
     req = urllib.request.Request(
         NTFY_URL,
         data=data,
+        method="POST",
         headers={
             "Title": NTFY_TITLE,
             "Priority": priority,
             "Authorization": auth_header
-        },
-        method="POST"
+        }
     )
     try:
         with urllib.request.urlopen(req, timeout=5) as response:
