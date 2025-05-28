@@ -12,9 +12,9 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: sdrhub-cloudflare-tunnel
     restart: unless-stopped
+    command: tunnel run --url http://sdrhub-traefik
     networks:
       - cloudflaretunnel
-    command: tunnel run --url http://sdrhub-traefik
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
   #
