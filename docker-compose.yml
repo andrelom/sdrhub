@@ -13,9 +13,8 @@ services:
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      # HTTP Entrypoints
+      # Entrypoints
       - --entrypoints.web.address=:80
-      # TCP Entrypoints
       - --entrypoints.sdr.address=:5555
     networks:
       - sdrhub
