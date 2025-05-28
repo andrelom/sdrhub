@@ -1,0 +1,15 @@
+[Unit]
+Description=SDR Hub: Start Docker Compose after system boot
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/srv/sdrhub
+ExecStart=/srv/sdrhub/start.sh --restart
+RemainAfterExit=true
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

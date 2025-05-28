@@ -1,0 +1,90 @@
+networks:
+  sdrhub:
+    driver: bridge
+  cloudflaretunnel:
+    driver: bridge
+
+services:
+  #
+  # Cloudflare Tunnel
+  # --------------------------------------------------
+  sdrhub-cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: sdrhub-cloudflare-tunnel
+    restart: unless-stopped
+    networks:
+      - cloudflaretunnel
+    command: tunnel run --url http://sdrhub-traefik
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+  #
+  # Traefik
+  # --------------------------------------------------
+  sdrhub-traefik:
+    networks:
+      - sdrhub
+      - cloudflaretunnel
+  #
+  # Homepage
+  # --------------------------------------------------
+  sdrhub-homepage:
+    networks:
+      - sdrhub
+      - cloudflaretunnel
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.sdrhub-homepage.loadbalancer.server.port=3000
+      - traefik.http.routers.sdrhub-homepage.service=sdrhub-homepage
+      - traefik.http.routers.sdrhub-homepage.entrypoints=web
+      - traefik.http.routers.sdrhub-homepage.rule=Host(`sdrhub.xyz`)
+  #
+  # Glances
+  # --------------------------------------------------
+  sdrhub-glances:
+    networks:
+      - sdrhub
+      - cloudflaretunnel
+    labels:
+      - traefik.enable=true
+      # Default
+      - traefik.http.services.sdrhub-glances.loadbalancer.server.port=61208
+      - traefik.http.routers.sdrhub-glances.service=sdrhub-glances
+      - traefik.http.routers.sdrhub-glances.entrypoints=web
+      - traefik.http.routers.sdrhub-glances.rule=Host(`glances.sdrhub.xyz`)
+  #
+  # Dozzle
+  # --------------------------------------------------
+  sdrhub-dozzle:
+    networks:
+      - sdrhub
+      - cloudflaretunnel
+    labels:
+      - traefik.enable=true
+      # Default
+      - traefik.http.services.sdrhub-dozzle.loadbalancer.server.port=8080
+      - traefik.http.routers.sdrhub-dozzle.service=sdrhub-dozzle
+      - traefik.http.routers.sdrhub-dozzle.entrypoints=web
+      - traefik.http.routers.sdrhub-dozzle.rule=Host(`dozzle.sdrhub.xyz`)
+  #
+  # Ntfy
+  # --------------------------------------------------
+  sdrhub-ntfy:
+    networks:
+      - sdrhub
+      - cloudflaretunnel
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.sdrhub-ntfy.loadbalancer.server.port=80
+      - traefik.http.routers.sdrhub-ntfy.service=sdrhub-ntfy
+      - traefik.http.routers.sdrhub-ntfy.entrypoints=web
+      - traefik.http.routers.sdrhub-ntfy.rule=Host(`ntfy.sdrhub.xyz`)
+  #
+  # AirSpy Server
+  # --------------------------------------------------
+  sdrhub-airspy:
+    labels:
+      - traefik.enable=true
+      - traefik.tcp.services.sdrhub-airspy-svc.loadbalancer.server.port=5555
+      - traefik.tcp.routers.sdrhub-airspy.service=sdrhub-airspy
+      - traefik.tcp.routers.sdrhub-airspy.entrypoints=tcp
+      - traefik.tcp.routers.sdrhub-airspy.rule=HostSNI(`airspy.sdrhub.xyz`)

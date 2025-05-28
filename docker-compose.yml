@@ -1,0 +1,135 @@
+networks:
+  sdrhub:
+    driver: bridge
+
+services:
+  #
+  # Traefik
+  # --------------------------------------------------
+  sdrhub-traefik:
+    image: traefik:v3.3.6
+    container_name: sdrhub-traefik
+    restart: unless-stopped
+    networks:
+      - sdrhub
+    ports:
+      - 80:80
+      - 5555:5555
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # HTTP Entrypoints
+      - --entrypoints.web.address=:80
+      # TCP Entrypoints
+      - --entrypoints.tcp.address=:5555
+  #
+  # Homepage
+  # --------------------------------------------------
+  sdrhub-homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: sdrhub-homepage
+    restart: unless-stopped
+    networks:
+      - sdrhub
+    volumes:
+      - ./docker/homepage/data/config:/app/config
+    environment:
+      - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_ALLOWED_HOSTS}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.sdrhub-homepage.loadbalancer.server.port=3000
+      - traefik.http.routers.sdrhub-homepage.service=sdrhub-homepage
+      - traefik.http.routers.sdrhub-homepage.entrypoints=web
+      - traefik.http.routers.sdrhub-homepage.rule=Host(`sdrhub.localhost`)
+  #
+  # Glances
+  # --------------------------------------------------
+  sdrhub-glances:
+    image: nicolargo/glances:latest
+    container_name: sdrhub-glances
+    restart: unless-stopped
+    pid: host
+    networks:
+      - sdrhub
+    environment:
+      - GLANCES_OPT=-w
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - traefik.enable=true
+      # Default
+      - traefik.http.services.sdrhub-glances.loadbalancer.server.port=61208
+      - traefik.http.routers.sdrhub-glances.service=sdrhub-glances
+      - traefik.http.routers.sdrhub-glances.entrypoints=web
+      - traefik.http.routers.sdrhub-glances.rule=Host(`glances.sdrhub.localhost`)
+  #
+  # Dozzle
+  # --------------------------------------------------
+  sdrhub-dozzle:
+    image: amir20/dozzle:latest
+    container_name: sdrhub-dozzle
+    restart: unless-stopped
+    networks:
+      - sdrhub
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - traefik.enable=true
+      # Default
+      - traefik.http.services.sdrhub-dozzle.loadbalancer.server.port=8080
+      - traefik.http.routers.sdrhub-dozzle.service=sdrhub-dozzle
+      - traefik.http.routers.sdrhub-dozzle.entrypoints=web
+      - traefik.http.routers.sdrhub-dozzle.rule=Host(`dozzle.sdrhub.localhost`)
+  #
+  # Ntfy
+  # --------------------------------------------------
+  sdrhub-ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: sdrhub-ntfy
+    restart: unless-stopped
+    networks:
+      - sdrhub
+    command:
+      - serve
+    volumes:
+      - ./docker/ntfy/data:/var/lib/ntfy
+    environment:
+      - NTFY_ENABLE_LOGIN=true
+      - NTFY_BEHIND_PROXY=true
+      - NTFY_BASE_URL=${NTFY_BASE_URL}
+      - NTFY_AUTH_FILE=/var/lib/ntfy/auth.db
+      - NTFY_CACHE_FILE=/var/lib/ntfy/cache.db
+      - NTFY_ATTACHMENT_CACHE_DIR=/var/lib/ntfy/attachments
+      - NTFY_AUTH_DEFAULT_ACCESS=deny-all
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.sdrhub-ntfy.loadbalancer.server.port=80
+      - traefik.http.routers.sdrhub-ntfy.service=sdrhub-ntfy
+      - traefik.http.routers.sdrhub-ntfy.entrypoints=web
+      - traefik.http.routers.sdrhub-ntfy.rule=Host(`ntfy.sdrhub.localhost`)
+  #
+  # AirSpy Server
+  # --------------------------------------------------
+  sdrhub-airspy:
+    build:
+      context: ./docker/airspy/build
+      dockerfile: Dockerfile
+      args:
+        AIRSPY_TARGET_PLATFORM: ${AIRSPY_TARGET_PLATFORM}
+    container_name: sdrhub-airspy
+    restart: unless-stopped
+    privileged: true
+    networks:
+      - sdrhub
+    volumes:
+      - ./docker/airspy/data:/airspy/data
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    labels:
+      - traefik.enable=true
+      - traefik.tcp.services.sdrhub-airspy-svc.loadbalancer.server.port=5555
+      - traefik.tcp.routers.sdrhub-airspy.service=sdrhub-airspy
+      - traefik.tcp.routers.sdrhub-airspy.entrypoints=tcp
+      - traefik.tcp.routers.sdrhub-airspy.rule=HostSNI(`airspy.sdrhub.localhost`)

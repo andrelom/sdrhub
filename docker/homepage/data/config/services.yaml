@@ -1,0 +1,20 @@
+---
+- SDR Services:
+    - AirSpy Server:
+        href: sdr://localhost:5555
+        description: The AirSpy SDR server.
+        icon: mdi-radio
+
+- Monitoring Tools:
+    - Glances:
+        href: https://glances.sdrhub.xyz
+        description: Real-time system monitoring.
+        icon: mdi-cpu-64-bit
+    - Dozzle:
+        href: https://dozzle.sdrhub.xyz
+        description: Real-time Docker log viewer.
+        icon: mdi-file-document-outline
+    - Ntfy:
+        href: https://ntfy.sdrhub.xyz
+        description: Real-time notification service.
+        icon: mdi-bell

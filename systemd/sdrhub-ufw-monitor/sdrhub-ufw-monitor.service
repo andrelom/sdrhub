@@ -1,0 +1,16 @@
+[Unit]
+Description=SDR Hub: UFW connection monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 /srv/sdrhub/systemd/sdrhub-ufw-monitor/agent.py
+Restart=on-failure
+EnvironmentFile=/srv/sdrhub/.env
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

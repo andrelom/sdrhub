@@ -1,0 +1,12 @@
+#
+# Folders
+
+data/config/*
+
+#
+# Files
+
+!data/config/bookmarks.yaml
+!data/config/services.yaml
+!data/config/settings.yaml
+!data/config/widgets.yaml

@@ -1,0 +1,16 @@
+---
+title: SDR Hub
+description: An easy-to-use solution for setting up a Software Defined Radio (SDR) server station.
+theme: dark
+color: slate
+iconStyle: theme
+
+layout:
+  SDR Services:
+    style: row
+    columns: 2
+    icon: mdi-satellite-variant
+  Monitoring Tools:
+    style: row
+    columns: 2
+    icon: mdi-monitor-dashboard
