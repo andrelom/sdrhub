@@ -10,13 +10,6 @@ services:
     image: traefik:v3.3.6
     container_name: sdrhub-traefik
     restart: unless-stopped
-    networks:
-      - sdrhub
-    ports:
-      - 80:80
-      - 5555:5555
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
@@ -24,6 +17,14 @@ services:
       - --entrypoints.web.address=:80
       # TCP Entrypoints
       - --entrypoints.tcp.address=:5555
+    networks:
+      - sdrhub
+    ports:
+      - 80:80
+      - 5555:5555
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
   #
   # Homepage
   # --------------------------------------------------
@@ -89,12 +90,11 @@ services:
     image: binwiederhier/ntfy:latest
     container_name: sdrhub-ntfy
     restart: unless-stopped
+    command: serve
     networks:
       - sdrhub
     volumes:
       - ./docker/ntfy/data:/var/lib/ntfy
-    command:
-      - serve
     environment:
       - NTFY_ENABLE_LOGIN=true
       - NTFY_BEHIND_PROXY=true
