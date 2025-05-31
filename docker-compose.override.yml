@@ -50,7 +50,7 @@ services:
       # Default
       - traefik.http.routers.sdrhub-glances.entrypoints=web
       - traefik.http.routers.sdrhub-glances.service=sdrhub-glances
-      - traefik.http.routers.sdrhub-glances.rule=Host(`glances.sdrhub.xyz`)
+      - traefik.http.routers.sdrhub-glances.rule=Host(`monitoring.sdrhub.xyz`)
       - traefik.http.services.sdrhub-glances.loadbalancer.server.port=61208
   #
   # Dozzle
@@ -64,7 +64,7 @@ services:
       # Default
       - traefik.http.routers.sdrhub-dozzle.entrypoints=web
       - traefik.http.routers.sdrhub-dozzle.service=sdrhub-dozzle
-      - traefik.http.routers.sdrhub-dozzle.rule=Host(`dozzle.sdrhub.xyz`)
+      - traefik.http.routers.sdrhub-dozzle.rule=Host(`logging.sdrhub.xyz`)
       - traefik.http.services.sdrhub-dozzle.loadbalancer.server.port=8080
   #
   # Ntfy
@@ -78,7 +78,7 @@ services:
       # Default
       - traefik.http.routers.sdrhub-ntfy.entrypoints=web
       - traefik.http.routers.sdrhub-ntfy.service=sdrhub-ntfy
-      - traefik.http.routers.sdrhub-ntfy.rule=Host(`ntfy.sdrhub.xyz`)
+      - traefik.http.routers.sdrhub-ntfy.rule=Host(`notification.sdrhub.xyz`)
       - traefik.http.services.sdrhub-ntfy.loadbalancer.server.port=80
   #
   # OpenWebRX
@@ -92,5 +92,5 @@ services:
       # Default
       - traefik.http.routers.sdrhub-openwebrx.entrypoints=web
       - traefik.http.routers.sdrhub-openwebrx.service=sdrhub-openwebrx
-      - traefik.http.routers.sdrhub-openwebrx.rule=Host(`rx.sdrhub.xyz`)
+      - traefik.http.routers.sdrhub-openwebrx.rule=Host(`receiver.sdrhub.xyz`)
       - traefik.http.services.sdrhub-openwebrx.loadbalancer.server.port=8073
