@@ -107,30 +107,10 @@ services:
       - traefik.http.routers.sdrhub-ntfy.rule=Host(`ntfy.sdrhub.localhost`)
       - traefik.http.services.sdrhub-ntfy.loadbalancer.server.port=80
   #
-  # AirSpy Server
-  # --------------------------------------------------
-  sdrhub-airspy:
-    build:
-      context: ./docker/airspy/build
-      dockerfile: Dockerfile
-      args:
-        AIRSPY_TARGET_PLATFORM: ${AIRSPY_TARGET_PLATFORM}
-    container_name: sdrhub-airspy
-    restart: unless-stopped
-    privileged: true
-    networks:
-      - sdrhub
-    ports:
-      - 5555:5555
-    volumes:
-      - ./docker/airspy/data:/airspy/data
-    devices:
-      - /dev/bus/usb:/dev/bus/usb
-  #
   # OpenWebRX
   # --------------------------------------------------
   sdrhub-openwebrx:
-    image: openwebrx/openwebrx:latest
+    image: jketterl/openwebrx:latest
     container_name: sdrhub-openwebrx
     restart: unless-stopped
     networks:
@@ -138,7 +118,7 @@ services:
     volumes:
       - ./docker/openwebrx/data/config:/app/config
     environment:
-      - OPENWEBRX_SDR_DEVICE=server
+      - OPENWEBRX_ADMIN_PASSWORD=${OPENWEBRX_ADMIN_PASSWORD}
     labels:
       - traefik.enable=true
       # Default
