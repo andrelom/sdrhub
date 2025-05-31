@@ -116,7 +116,7 @@ services:
     networks:
       - sdrhub
     volumes:
-      - ./docker/openwebrx/data/config:/app/config
+      - ./docker/openwebrx/data:/var/lib/openwebrx
     environment:
       - OPENWEBRX_ADMIN_PASSWORD=${OPENWEBRX_ADMIN_PASSWORD}
     labels:
