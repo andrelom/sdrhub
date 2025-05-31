@@ -110,7 +110,7 @@ services:
   # OpenWebRX
   # --------------------------------------------------
   sdrhub-openwebrx:
-    image: jketterl/openwebrx:latest
+    image: jketterl/openwebrx:stable
     container_name: sdrhub-openwebrx
     restart: unless-stopped
     networks:
