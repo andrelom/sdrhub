@@ -35,6 +35,7 @@ services:
       - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_ALLOWED_HOSTS}
     labels:
       - traefik.enable=true
+      # Default
       - traefik.http.routers.sdrhub-homepage.entrypoints=web
       - traefik.http.routers.sdrhub-homepage.service=sdrhub-homepage
       - traefik.http.routers.sdrhub-homepage.rule=Host(`sdrhub.localhost`)
@@ -100,6 +101,7 @@ services:
       - NTFY_AUTH_DEFAULT_ACCESS=deny-all
     labels:
       - traefik.enable=true
+      # Default
       - traefik.http.routers.sdrhub-ntfy.entrypoints=web
       - traefik.http.routers.sdrhub-ntfy.service=sdrhub-ntfy
       - traefik.http.routers.sdrhub-ntfy.rule=Host(`ntfy.sdrhub.localhost`)
