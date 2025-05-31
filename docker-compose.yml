@@ -126,3 +126,23 @@ services:
       - ./docker/airspy/data:/airspy/data
     devices:
       - /dev/bus/usb:/dev/bus/usb
+  #
+  # OpenWebRX
+  # --------------------------------------------------
+  sdrhub-openwebrx:
+    image: openwebrx/openwebrx:latest
+    container_name: sdrhub-openwebrx
+    restart: unless-stopped
+    networks:
+      - sdrhub
+    volumes:
+      - ./docker/openwebrx/data/config:/app/config
+    environment:
+      - OPENWEBRX_SDR_DEVICE=server
+    labels:
+      - traefik.enable=true
+      # Default
+      - traefik.http.routers.sdrhub-openwebrx.entrypoints=web
+      - traefik.http.routers.sdrhub-openwebrx.service=sdrhub-openwebrx
+      - traefik.http.routers.sdrhub-openwebrx.rule=Host(`openwebrx.sdrhub.localhost`)
+      - traefik.http.services.sdrhub-openwebrx.loadbalancer.server.port=8073
