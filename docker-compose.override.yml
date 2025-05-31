@@ -33,6 +33,7 @@ services:
       - cloudflaretunnel
     labels:
       - traefik.enable=true
+      # Default
       - traefik.http.routers.sdrhub-homepage.entrypoints=web
       - traefik.http.routers.sdrhub-homepage.service=sdrhub-homepage
       - traefik.http.routers.sdrhub-homepage.rule=Host(`sdrhub.xyz`)
@@ -74,6 +75,7 @@ services:
       - cloudflaretunnel
     labels:
       - traefik.enable=true
+      # Default
       - traefik.http.routers.sdrhub-ntfy.entrypoints=web
       - traefik.http.routers.sdrhub-ntfy.service=sdrhub-ntfy
       - traefik.http.routers.sdrhub-ntfy.rule=Host(`ntfy.sdrhub.xyz`)
