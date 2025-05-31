@@ -1,20 +1,20 @@
 ---
 - SDR Services:
     - OpenWebRX:
-        href: https://rx.sdrhub.xyz/
+        href: https://receiver.sdrhub.xyz/
         description: A multi-user SDR receiver.
         icon: mdi-radio
 
 - Monitoring Tools:
     - Glances:
-        href: https://glances.sdrhub.xyz
+        href: https://monitoring.sdrhub.xyz
         description: Real-time system monitoring.
         icon: mdi-cpu-64-bit
     - Dozzle:
-        href: https://dozzle.sdrhub.xyz
+        href: https://logging.sdrhub.xyz
         description: Real-time Docker log viewer.
         icon: mdi-file-document-outline
     - Ntfy:
-        href: https://ntfy.sdrhub.xyz
+        href: https://notification.sdrhub.xyz
         description: Real-time notification service.
         icon: mdi-bell
