@@ -113,10 +113,13 @@ services:
     image: jketterl/openwebrx:stable
     container_name: sdrhub-openwebrx
     restart: unless-stopped
+    privileged: true
     networks:
       - sdrhub
     volumes:
       - ./docker/openwebrx/data:/var/lib/openwebrx
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
     environment:
       - OPENWEBRX_ADMIN_PASSWORD=${OPENWEBRX_ADMIN_PASSWORD}
     labels:
