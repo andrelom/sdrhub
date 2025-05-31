@@ -127,5 +127,5 @@ services:
       # Default
       - traefik.http.routers.sdrhub-openwebrx.entrypoints=web
       - traefik.http.routers.sdrhub-openwebrx.service=sdrhub-openwebrx
-      - traefik.http.routers.sdrhub-openwebrx.rule=Host(`openwebrx.sdrhub.localhost`)
+      - traefik.http.routers.sdrhub-openwebrx.rule=Host(`rx.sdrhub.localhost`)
       - traefik.http.services.sdrhub-openwebrx.loadbalancer.server.port=8073

@@ -1,7 +1,7 @@
 ---
 - SDR Services:
     - OpenWebRX:
-        href: https://openwebrx.sdrhub.xyz/
+        href: https://rx.sdrhub.xyz/
         description: A multi-user SDR receiver.
         icon: mdi-radio
 
