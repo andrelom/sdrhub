@@ -1,8 +1,8 @@
 ---
 - SDR Services:
-    - AirSpy Server:
-        href: sdr://localhost:5555
-        description: The AirSpy SDR server.
+    - OpenWebRX:
+        href: https://openwebrx.sdrhub.xyz/
+        description: A multi-user SDR receiver.
         icon: mdi-radio
 
 - Monitoring Tools:
