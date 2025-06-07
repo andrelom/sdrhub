@@ -2,6 +2,9 @@
 
 set -e
 
+# SoapySDR Setup Script.
+# Compatible with various SDR devices that support SoapySDR.
+
 echo "Installing dependencies..."
 
 sudo apt update
