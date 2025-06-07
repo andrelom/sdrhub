@@ -131,27 +131,41 @@ class SDRScanner:
         except Exception as e:
             print(f"[ERROR] Batch failed: {e}")
 
-    def run_batch_scan(self, frequencies, callback=None):
+    def run(self, frequencies, callback=None, stop_events=None):
         """
-        Run the full parallel batch scanning job on a list of frequencies.
-        Parameters:
-            - frequencies: A list of frequencies to scan (in Hz).
-            - callback: Optional function to call with each result (frequency, samples).
-        """
-        batches = [frequencies[i:i + self.batch_size] for i in range(0, len(frequencies), self.batch_size)]
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            for batch in batches:
-                executor.submit(self.batch_scan, batch, callback)
+        Run loop scan in multiple threads, each handling a subset of frequencies.
+        Each thread runs loop_scan on its own frequency group until stopped.
 
-    def run_loop_scan(self, frequencies, callback=None, stop_event=None):
-        """
-        Run continuous frequency scanning in a loop.
         Parameters:
             - frequencies: A list of frequencies to scan (in Hz).
-            - callback: Optional function to call with each result (frequency, samples).
-            - stop_event: Optional threading.Event for graceful shutdown.
+            - callback: Optional function to call with each result.
+            - stop_events: Optional list of threading.Event objects to control each thread externally.
+
+        Returns:
+            - threads: List of started threading.Thread instances.
+            - stop_events: List of corresponding threading.Event objects.
         """
-        self.loop_scan(frequencies, callback=callback, stop_event=stop_event)
+        threads = []
+        total_threads = self.max_workers
+        groups = [frequencies[i::total_threads] for i in range(total_threads)]
+        if stop_events is None:
+            stop_events = []
+        for i, freq_group in enumerate(groups):
+            if not freq_group:
+                continue
+            if len(stop_events) <= i:
+                stop_events.append(threading.Event())
+            thread = threading.Thread(
+                target=self.loop_scan,
+                args=(freq_group,),
+                kwargs={"callback": callback, "stop_event": stop_events[i]},
+                name=f"LoopScanner-{i+1}",
+                daemon=True
+            )
+            threads.append(thread)
+            thread.start()
+            print(f"[INFO] Started thread {thread.name} for {len(freq_group)} frequencies.")
+        return threads, stop_events
 
 
 def handle_samples(frequency, samples):
@@ -179,9 +193,24 @@ if __name__ == "__main__":
         max_workers=4,
     )
 
-    # Option 1: Run parallel batch scan.
-    scanner.run_batch_scan(all_frequencies, callback=handle_samples)
+    # Optionally, create your own stop_events for external control.
+    stop_flags = [threading.Event() for _ in range(scanner.max_workers)]
 
-    # Option 2: Uncomment to run continuous loop scan (single-threaded).
-    # stop_flag = threading.Event()
-    # scanner.run_loop_scan(all_frequencies, callback=handle_samples, stop_event=stop_flag)
+    # Start loop scan in multiple threads, one group of frequencies per thread.
+    threads, stop_flags = scanner.run(
+        frequencies=all_frequencies,
+        callback=handle_samples,
+        stop_events=stop_flags
+    )
+
+    # Keep running until interrupted by the user (Ctrl+C).
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\n[INFO] Stopping all threads...")
+        for flag in stop_flags:
+            flag.set()
+        for t in threads:
+            t.join()
+        print("[INFO] All scanner threads stopped gracefully.")
