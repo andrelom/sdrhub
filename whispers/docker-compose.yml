@@ -4,11 +4,12 @@ services:
   sdr:
     build: .
     container_name: sdr-monitor
-    command: python app/__main__.py --band=${BAND} --driver=${DRIVER} --gain=${GAIN}
+    command: python -u app/__main__.py --band=${BAND} --driver=${DRIVER} --gain=${GAIN}
     env_file:
       - .env
+    privileged: true # <-- needed for full USB device access
     devices:
-      - '/dev/bus/usb:/dev/bus/usb'
+      - '/dev/bus/usb:/dev/bus/usb' # <-- required to see SDRs
     volumes:
       - ./recordings:/app/recordings
     restart: unless-stopped
