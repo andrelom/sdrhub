@@ -131,9 +131,9 @@ class SDRScanner:
         except Exception as e:
             print(f"[ERROR] Batch failed: {e}")
 
-    def run(self, frequencies, callback=None):
+    def run_batch_scan(self, frequencies, callback=None):
         """
-        Run the full parallel scanning job on a list of frequencies.
+        Run the full parallel batch scanning job on a list of frequencies.
         Parameters:
             - frequencies: A list of frequencies to scan (in Hz).
             - callback: Optional function to call with each result (frequency, samples).
@@ -142,6 +142,16 @@ class SDRScanner:
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             for batch in batches:
                 executor.submit(self.batch_scan, batch, callback)
+
+    def run_loop_scan(self, frequencies, callback=None, stop_event=None):
+        """
+        Run continuous frequency scanning in a loop.
+        Parameters:
+            - frequencies: A list of frequencies to scan (in Hz).
+            - callback: Optional function to call with each result (frequency, samples).
+            - stop_event: Optional threading.Event for graceful shutdown.
+        """
+        self.loop_scan(frequencies, callback=callback, stop_event=stop_event)
 
 
 def handle_samples(frequency, samples):
@@ -169,9 +179,9 @@ if __name__ == "__main__":
         max_workers=4,
     )
 
-    # Option 1: Run batch scan once in parallel.
-    scanner.run(all_frequencies, callback=handle_samples)
+    # Option 1: Run parallel batch scan.
+    scanner.run_batch_scan(all_frequencies, callback=handle_samples)
 
-    # Option 2: Uncomment below to run continuous loop scan instead.
+    # Option 2: Uncomment to run continuous loop scan (single-threaded).
     # stop_flag = threading.Event()
-    # scanner.loop_scan(all_frequencies, callback=handle_samples, stop_event=stop_flag)
+    # scanner.run_loop_scan(all_frequencies, callback=handle_samples, stop_event=stop_flag)
