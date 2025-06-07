@@ -36,6 +36,11 @@ class SDRScanner:
         self.batch_size = batch_size
         self.max_workers = max_workers
 
+        # Sanity checks.
+        assert self.sample_rate > 0, "Sample rate must be > 0"
+        assert self.duration > 0, "Duration must be > 0"
+        assert self.batch_size >= 1, "Batch size must be >= 1"
+
     def create_sdr(self):
         """
         Create a SoapySDR device instance.
@@ -43,8 +48,13 @@ class SDRScanner:
             A SoapySDR device instance configured with the specified driver.
         """
         options = dict(driver=self.driver)
-        sdr = SoapySDR.Device(options)
-        return sdr
+        for attempt in range(3):
+            try:
+                return SoapySDR.Device(options)
+            except Exception as e:
+                print(f"[WARN] SDR creation failed (attempt {attempt+1}): {e}")
+                time.sleep(1)
+        raise RuntimeError("Failed to initialize SDR device after retries.")
 
     def create_sdr_stream(self, sdr, frequency):
         """
@@ -81,7 +91,9 @@ class SDRScanner:
             sr = sdr.readStream(stream, [buff[received:]], num_samples - received)
             if sr.ret > 0:
                 received += sr.ret
-            elif sr.ret < 0:
+            elif sr.ret == 0:
+                time.sleep(0.01)
+            else:
                 raise IOError(f"readStream error: {sr.ret}")
         return buff[:received]
 
@@ -93,6 +105,8 @@ class SDRScanner:
             - callback: Optional callback to apply to each (frequency, samples).
             - stop_event: Optional threading.Event to stop the loop gracefully.
         """
+        sdr = None
+        stream = None
         try:
             sdr = self.create_sdr()
             stream = sdr.setupStream(SoapySDR.SOAPY_SDR_RX, SoapySDR.SOAPY_SDR_CF32)
@@ -101,14 +115,17 @@ class SDRScanner:
                 for frequency in frequencies:
                     sdr.setFrequency(SoapySDR.SOAPY_SDR_RX, 0, frequency)
                     samples = self.capture_samples(sdr, stream)
-                    print(f"Captured {len(samples)} samples at {frequency/1e6:.3f} MHz")
+                    print(f"[{threading.current_thread().name}] Captured {len(samples)} samples at {frequency/1e6:.3f} MHz")
                     if callback:
                         callback(frequency, samples)
-            sdr.deactivateStream(stream)
-            sdr.closeStream(stream)
-            del sdr
         except Exception as e:
             print(f"[ERROR] Loop scan failed: {e}")
+        finally:
+            if stream:
+                sdr.deactivateStream(stream)
+                sdr.closeStream(stream)
+            if sdr:
+                del sdr
 
     def batch_scan(self, batch_frequencies, callback=None):
         """
@@ -117,19 +134,22 @@ class SDRScanner:
             - batch_frequencies: A list of frequencies to scan (in Hz).
             - callback: Optional callback to apply to each (frequency, samples).
         """
+        sdr = None
         try:
             sdr = self.create_sdr()
             for frequency in batch_frequencies:
                 stream = self.create_sdr_stream(sdr, frequency)
                 samples = self.capture_samples(sdr, stream)
-                print(f"Captured {len(samples)} samples at {frequency/1e6:.3f} MHz")
+                print(f"[BATCH] Captured {len(samples)} samples at {frequency/1e6:.3f} MHz")
                 sdr.deactivateStream(stream)
                 sdr.closeStream(stream)
                 if callback:
                     callback(frequency, samples)
-            del sdr
         except Exception as e:
             print(f"[ERROR] Batch failed: {e}")
+        finally:
+            if sdr:
+                del sdr
 
     def run(self, frequencies, callback=None, stop_events=None):
         """
