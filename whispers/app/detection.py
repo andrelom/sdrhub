@@ -3,10 +3,14 @@
 import torch
 import numpy as np
 from scipy.signal import resample
-from pathlib import Path
 
-# Load Silero VAD model from TorchHub only once (optimized)
-model, utils = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad', force_reload=False)
+# Load Silero VAD model from TorchHub with trust_repo=True
+model, utils = torch.hub.load(
+    repo_or_dir='snakers4/silero-vad',
+    model='silero_vad',
+    force_reload=False,
+    trust_repo=True
+)
 (get_speech_timestamps, _, _, _, _) = utils
 
 # Constants
@@ -31,7 +35,16 @@ def detect_voice(pcm_audio, sample_rate):
 
     try:
         segments = get_speech_timestamps(audio_tensor, model, sampling_rate=TARGET_SAMPLE_RATE)
-        return len(segments) > 0
+        if segments:
+            print(f"[VAD] Detected {len(segments)} voice segment(s):")
+            for seg in segments:
+                start_ms = int(seg['start'] * 1000 / TARGET_SAMPLE_RATE)
+                end_ms = int(seg['end'] * 1000 / TARGET_SAMPLE_RATE)
+                print(f"   ↳ from {start_ms} ms to {end_ms} ms")
+            return True
+        else:
+            print("[VAD] No voice detected.")
+            return False
     except Exception as e:
         print(f"[ERROR] Silero VAD failed: {e}")
         return False

@@ -3,4 +3,5 @@ numpy
 scipy
 soundfile
 torch
+torchaudio
 uvicorn[standard]
