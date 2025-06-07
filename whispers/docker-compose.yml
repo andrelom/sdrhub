@@ -2,7 +2,7 @@ services:
   sdr:
     build: .
     container_name: sdr-monitor
-    command: python -u app/__main__.py --band=${BAND} --driver=${DRIVER} --gain=${GAIN}
+    command: python -u app/__main__.py --band=${BAND} --driver=${DRIVER} --gain=${GAIN} --workers=${WORKERS}
     env_file:
       - .env
     privileged: true # <-- needed for full USB device access

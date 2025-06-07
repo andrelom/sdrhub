@@ -1,3 +1,5 @@
+# __main__.py
+
 import argparse
 import time
 from bands import BAND_CONFIGS
@@ -7,10 +9,12 @@ from demodulation import demodulate
 from detection import detect_voice
 from persistence import save_audio, save_iq, log_contact, generate_file_paths
 from health import SystemHealthMonitor
+from concurrent.futures import ThreadPoolExecutor
 
 AUDIO_FRAME_MS = 30
 AUDIO_SAMPLE_WIDTH = 2
 CAPTURE_DURATION = 2
+
 
 def scan(freq, config, driver, gain):
     print(f"[INFO] Scanning {freq/1e6:.3f} MHz")
@@ -39,7 +43,8 @@ def scan(freq, config, driver, gain):
         log_contact(freq, timestamp, "no_voice", "-", "-", config["output_dir"])
         print("[INFO] No voice detected.")
 
-def main(band, driver, gain):
+
+def run_parallel_scan(band, driver, gain, max_workers=4):
     if band not in BAND_CONFIGS:
         raise ValueError(f"Unsupported band: {band}")
     config = BAND_CONFIGS[band]
@@ -48,21 +53,27 @@ def main(band, driver, gain):
     health = SystemHealthMonitor(config["output_dir"])
     health.start()
 
-    print(f"[INFO] Voice Monitor Started (band={band})")
-    while True:
-        for freq in config["frequencies"]:
-            scan(freq, config, driver, gain)
+    print(f"[INFO] Voice Monitor Started (band={band}) with up to {max_workers} workers")
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        while True:
+            futures = []
+            for freq in config["frequencies"]:
+                futures.append(executor.submit(scan, freq, config, driver, gain))
+            for f in futures:
+                f.result()
             time.sleep(1)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--band", required=True, choices=["hf", "vhf", "uhf"])
     parser.add_argument("--driver", default=None)
     parser.add_argument("--gain", default=40, type=int)
+    parser.add_argument("--workers", default=4, type=int, help="Number of parallel scan threads")
     args = parser.parse_args()
 
     try:
-        main(band=args.band, driver=args.driver, gain=args.gain)
+        run_parallel_scan(band=args.band, driver=args.driver, gain=args.gain, max_workers=args.workers)
     except KeyboardInterrupt:
         print("[INFO] Stopped by user.")
     except Exception as e:
