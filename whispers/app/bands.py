@@ -1,3 +1,6 @@
+# ==============================================
+# File: app/bands.py
+# ==============================================
 import numpy as np
 
 def generate_band_range(start_mhz, end_mhz, step_khz):
@@ -11,7 +14,7 @@ BAND_CONFIGS = {
         "output_dir": "recordings_hf",
     },
     "vhf": {
-        "frequencies": generate_band_range(144, 148, 25),  # de 144 MHz a 148 MHz
+        "frequencies": generate_band_range(144, 148, 25),
         "sample_rate": 240000,
         "demod": "fm",
         "output_dir": "recordings_vhf",
@@ -22,4 +25,10 @@ BAND_CONFIGS = {
         "demod": "fm",
         "output_dir": "recordings_uhf",
     },
+    # "fm_wide": {
+    #     "frequencies": [88.0e6, 92.1e6, 100.1e6, 107.9e6],
+    #     "sample_rate": 500000,
+    #     "demod": "fm",
+    #     "output_dir": "recordings_fmwide",
+    # },
 }

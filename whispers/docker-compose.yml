@@ -1,13 +1,18 @@
+# ==============================================
+# File: docker-compose.yml
+# ==============================================
+version: '3.9'
+
 services:
   sdr:
     build: .
     container_name: sdr-monitor
-    command: python -u app/__main__.py --band=${BAND} --driver=${DRIVER} --gain=${GAIN} --workers=${WORKERS}
+    command: /app/startup.sh --band=${BAND} --driver=${DRIVER} --gain=${GAIN} --workers=${WORKERS}
     env_file:
       - .env
-    privileged: true # <-- needed for full USB device access
+    privileged: true
     devices:
-      - '/dev/bus/usb:/dev/bus/usb' # <-- required to see SDRs
+      - '/dev/bus/usb:/dev/bus/usb'
     volumes:
       - ./recordings:/app/recordings
     restart: unless-stopped
