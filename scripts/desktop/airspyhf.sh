@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# AirSpy SDR HF+ Setup Script.
+# Compatible with AirSpy HF+ and SoapySDR integration.
+
 set -e
 
 echo "Installing dependencies..."
