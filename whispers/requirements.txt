@@ -1,5 +1,6 @@
 fastapi
 numpy
+scipy
 soundfile
+torch
 uvicorn[standard]
-webrtcvad
