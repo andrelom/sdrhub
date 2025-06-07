@@ -1,8 +1,8 @@
-# detection.py (Silero VAD version)
+# detection.py (Silero VAD + otimização de buffer no resample)
 
 import torch
 import numpy as np
-from scipy.signal import resample
+from scipy.signal import resample_poly
 
 # Load Silero VAD model from TorchHub with trust_repo=True
 model, utils = torch.hub.load(
@@ -17,19 +17,26 @@ model, utils = torch.hub.load(
 TARGET_SAMPLE_RATE = 16000
 
 
-def resample_audio(pcm_audio, original_sr):
+def resample_audio(pcm_audio, original_sr, reuse_buffer=False):
     """Resample audio to 16 kHz required by Silero VAD."""
     if original_sr == TARGET_SAMPLE_RATE:
         return pcm_audio
-    duration = len(pcm_audio) / original_sr
-    new_len = int(TARGET_SAMPLE_RATE * duration)
-    return resample(pcm_audio, new_len).astype(np.int16)
+    # Use resample_poly for better performance and quality
+    from math import gcd
+    g = gcd(int(original_sr), TARGET_SAMPLE_RATE)
+    up = TARGET_SAMPLE_RATE // g
+    down = original_sr // g
+    audio_resampled = resample_poly(pcm_audio, up, down)
+    if reuse_buffer:
+        pcm_out = np.empty_like(audio_resampled, dtype=np.int16)
+        np.multiply(audio_resampled, 1, out=pcm_out, casting='unsafe')
+        return pcm_out
+    return audio_resampled.astype(np.int16)
 
 
 def detect_voice(pcm_audio, sample_rate):
     """Detects if there is human voice in the given PCM audio using Silero VAD."""
-    # Resample to 16kHz
-    pcm_resampled = resample_audio(pcm_audio, sample_rate)
+    pcm_resampled = resample_audio(pcm_audio, sample_rate, reuse_buffer=True)
     audio_tensor = torch.from_numpy(pcm_resampled).float() / 32768.0
     audio_tensor = audio_tensor.unsqueeze(0)  # Add batch dim
 
