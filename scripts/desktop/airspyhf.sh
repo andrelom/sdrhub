@@ -52,7 +52,7 @@ cd ../..
 rm -rf SoapyAirspyHF
 
 echo "To verify the installation, run the following command:"
-echo "airspy_hf --version"
+echo "airspy_info"
 echo "You can also run the following command to test SoapyAirspyHF functionality:"
 echo "SoapySDRUtil --find=airspyhf"
 
